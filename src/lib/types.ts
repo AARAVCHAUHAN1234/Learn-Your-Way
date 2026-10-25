@@ -27,6 +27,7 @@ export interface DiagramDescription {
   id: string;
   title: string;
   imageUrl?: string;
+  svgDiagram?: string;
   altText: string;
   detailedDescription: string;
   keyVisualElements: string[];

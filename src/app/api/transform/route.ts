@@ -4,7 +4,7 @@ import { generateTransformations, isLLMConfigured } from '@/lib/llmService';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { title, text } = body;
+    const { title, text, imageBase64 } = body;
 
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return NextResponse.json(
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const lessonTitle = title && typeof title === 'string' ? title : 'Educational Lesson';
-    const result = await generateTransformations(text, lessonTitle);
+    const result = await generateTransformations(text, lessonTitle, imageBase64);
 
     return NextResponse.json({
       success: true,

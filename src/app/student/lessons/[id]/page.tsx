@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 import { StorageService } from '@/lib/storageService';
 import { Lesson, UserPreferences } from '@/lib/types';
 import { TTSPlayer } from '@/components/TTSPlayer';
-import { QuizViewer } from '@/components/QuizViewer';
+// QuizViewer removed per user request
 import { AccessibleDiagramViewer } from '@/components/AccessibleDiagramViewer';
 import {
   FileText,
@@ -24,7 +24,7 @@ import {
   Info,
 } from 'lucide-react';
 
-type TabFormat = 'simplified' | 'original' | 'hindi' | 'audio' | 'diagram' | 'quiz';
+type TabFormat = 'simplified' | 'original' | 'hindi' | 'audio' | 'diagram';
 
 export default function LessonViewerPage() {
   const params = useParams();
@@ -51,8 +51,6 @@ export default function LessonViewerPage() {
       setActiveTab('diagram');
     } else if (prefs.readAloud) {
       setActiveTab('audio');
-    } else if (prefs.additionalPractice && found?.quiz?.length) {
-      setActiveTab('quiz');
     } else if (found?.simplifiedText) {
       setActiveTab('simplified');
     } else {
@@ -71,18 +69,6 @@ export default function LessonViewerPage() {
     }
   };
 
-  const handleQuizCompleted = (score: number, total: number) => {
-    if (!lessonId) return;
-    StorageService.saveQuizAttempt({
-      id: 'att-' + Date.now(),
-      lessonId,
-      learnerId: 'student-session',
-      score,
-      totalQuestions: total,
-      answers: [],
-      completedAt: new Date().toISOString(),
-    });
-  };
 
   if (!lesson) {
     return (
@@ -204,18 +190,6 @@ export default function LessonViewerPage() {
           <span>Visual & Diagram Description</span>
         </button>
 
-        <button
-          onClick={() => handleTabChange('quiz')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
-            activeTab === 'quiz'
-              ? 'bg-white text-amber-800 shadow-sm border border-slate-200'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-          aria-current={activeTab === 'quiz' ? 'true' : undefined}
-        >
-          <HelpCircle className="w-4 h-4 text-amber-600" />
-          <span>Practice Quiz</span>
-        </button>
 
         <button
           onClick={() => handleTabChange('original')}
@@ -384,6 +358,8 @@ export default function LessonViewerPage() {
                       detailedDescription={diag.detailedDescription}
                       keyVisualElements={diag.keyVisualElements}
                       scientificInterpretation={diag.scientificInterpretation}
+                      imageUrl={diag.imageUrl}
+                      svgDiagram={diag.svgDiagram}
                     />
                   ))}
                 </div>
@@ -395,16 +371,6 @@ export default function LessonViewerPage() {
             </div>
           )}
 
-          {/* Tab 5: Practice Quiz */}
-          {activeTab === 'quiz' && (
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-              <QuizViewer
-                questions={lesson.quiz || []}
-                lessonTitle={lesson.title}
-                onComplete={handleQuizCompleted}
-              />
-            </div>
-          )}
 
           {/* Tab 6: Original Text */}
           {activeTab === 'original' && (

@@ -27,6 +27,7 @@ export default function UploadWorkflowPage() {
   const [gradeLevel, setGradeLevel] = useState('Grade 7');
   const [extractedText, setExtractedText] = useState('');
   const [filename, setFilename] = useState('');
+  const [extractedImageBase64, setExtractedImageBase64] = useState<string | undefined>(undefined);
 
   // Processing indicators
   const [isExtracting, setIsExtracting] = useState(false);
@@ -60,6 +61,10 @@ export default function UploadWorkflowPage() {
       });
 
       const data = await res.json();
+      // Store extracted image if available
+      if (data.imageBase64) {
+        setExtractedImageBase64(data.imageBase64);
+      }
       if (!res.ok) {
         throw new Error(data.error || 'Failed to extract text from document.');
       }
@@ -109,6 +114,7 @@ This vital atmospheric process redistributes freshwater globally, moderates plan
         body: JSON.stringify({
           title,
           text: extractedText,
+          imageBase64: extractedImageBase64,
         }),
       });
 
@@ -144,10 +150,12 @@ This vital atmospheric process redistributes freshwater globally, moderates plan
           {
             id: 'diag-' + Date.now(),
             title: generated.diagramDescription.title,
+            imageUrl: extractedImageBase64,
             altText: generated.diagramDescription.altText,
             detailedDescription: generated.diagramDescription.detailedDescription,
             keyVisualElements: generated.diagramDescription.keyVisualElements,
             scientificInterpretation: generated.diagramDescription.scientificInterpretation,
+            svgDiagram: generated.diagramDescription.svgDiagram,
           },
         ],
         quiz: generated.quiz,
